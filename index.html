@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Bank Exam Quiz</title>
+
+<style>
+
+body{
+    font-family: Arial, sans-serif;
+    background:#f4f6f9;
+    margin:0;
+    padding:20px;
+}
+
+.container{
+    max-width:1000px;
+    margin:auto;
+}
+
+h1{
+    text-align:center;
+}
+
+/* ========================= */
+/* TIMER AREA */
+/* ========================= */
+
+#timer-container{
+    position:sticky;
+    top:0;
+    z-index:100;
+    background:#f4f6f9;
+    padding-bottom:10px;
+}
+
+#timer{
+    background:#222;
+    color:white;
+    padding:15px;
+    text-align:center;
+    font-size:22px;
+    border-radius:10px;
+    margin-bottom:10px;
+}
+
+.timer-buttons{
+    text-align:center;
+}
+
+#pauseBtn,
+#resumeBtn{
+    padding:10px 20px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:16px;
+    margin:5px;
+}
+
+#pauseBtn{
+    background:#ff9800;
+    color:white;
+}
+
+#resumeBtn{
+    background:#28a745;
+    color:white;
+}
+
+.question{
+    background:white;
+    padding:20px;
+    margin-bottom:20px;
+    border-radius:12px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+.question h3{
+    margin-bottom:15px;
+}
+
+.option{
+    display:block;
+    padding:12px;
+    margin:10px 0;
+    border:1px solid #ccc;
+    border-radius:8px;
+    cursor:pointer;
+    transition:0.2s;
+}
+
+.option:hover{
+    background:#f0f0f0;
+}
+
+.selected{
+    background:#cfe2ff;
+    border:2px solid #0d6efd;
+}
+
+.mark-btn{
+    margin-top:10px;
+    padding:8px 15px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    background:#ff9800;
+    color:white;
+}
+
+.marked{
+    background:#ffcc80 !important;
+}
+
+.review-marked{
+    background:#e0e0e0 !important;
+    border:2px solid #9e9e9e;
+}
+
+.clear-btn{
+    margin-top:10px;
+    margin-left:10px;
+    padding:8px 15px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    background:#dc3545;
+    color:white;
+}
+
+.submit-btn{
+    width:100%;
+    padding:15px;
+    font-size:20px;
+    border:none;
+    border-radius:10px;
+    background:#28a745;
+    color:white;
+    cursor:pointer;
+    margin-top:20px;
+}
+
+.result-box{
+    background:white;
+    padding:30px;
+    border-radius:12px;
+    text-align:center;
+    box-shadow:0 2px 10px rgba(0,0,0,0.1);
+}
+
+.review-btn{
+    padding:12px 20px;
+    margin-top:20px;
+    border:none;
+    border-radius:10px;
+    background:#007bff;
+    color:white;
+    font-size:18px;
+    cursor:pointer;
+}
+
+.review-question{
+    background:white;
+    padding:20px;
+    margin:20px 0;
+    border-radius:12px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+.correct{
+    color:green;
+    font-weight:bold;
+}
+
+.wrong{
+    color:red;
+    font-weight:bold;
+}
+
+.unanswered{
+    color:orange;
+    font-weight:bold;
+}
+
+.correct-answer{
+    background:#d4edda;
+    padding:10px;
+    border-radius:8px;
+    margin-top:10px;
+}
+
+.disabled-option{
+    pointer-events:none;
+    opacity:0.6;
+}
+
+.disabled-btn{
+    opacity:0.6;
+    cursor:not-allowed;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Bank Exam MCQ Quiz</h1>
+
+<!-- ========================= -->
+<!-- TIMER -->
+<!-- ========================= -->
+
+<div id="timer-container">
+
+    <div id="timer">
+        Time Left: 20:00
+    </div>
+
+    <div class="timer-buttons">
+
+        <button id="pauseBtn" onclick="pauseTimer()">
+            Pause
+        </button>
+
+        <button id="resumeBtn" onclick="resumeTimer()" disabled>
+            Resume
+        </button>
+
+    </div>
+
+</div>
+
+<div id="quiz"></div>
+
+<button class="submit-btn" onclick="submitQuiz()">
+Submit Quiz
+</button>
+
+</div>
+
+<script>
+
+// ===============================
+// QUESTIONS AREA
+// ===============================
+
+const questions = [
+{q:"1. Andhra Pradesh has several important bird sanctuaries and wildlife sanctuaries. Which of the following is correctly identified as a bird sanctuary located in Andhra Pradesh according to the given list?",options:["Sultanpur Bird Sanctuary","Kolleru Bird Sanctuary","Kadalundi Bird Sanctuary","Vedanthangal Bird Sanctuary"],answer:1},
+
+{q:"2. Bordoibam-Bilmukh Bird Sanctuary and Pani-Dihing Bird Sanctuary are two important bird conservation areas mentioned in the state-wise sanctuary list. To which Indian state do both these sanctuaries belong?",options:["Meghalaya","Manipur","Assam","Arunachal Pradesh"],answer:2},
+
+{q:"3. Nagi Dam Bird Sanctuary, Kusheshwar Asthan Bird Sanctuary and Bareli Jheel Salim Ali Bird Sanctuary are mentioned together in the supplied list. Identify the state associated with these three sanctuaries.",options:["Bihar","Jharkhand","Uttar Pradesh","West Bengal"],answer:0},
+
+{q:"4. City Bird Sanctuary is an important bird sanctuary mentioned in the supplied state-wise list. In which Union Territory is this sanctuary located?",options:["Delhi","Puducherry","Andaman and Nicobar Islands","Chandigarh"],answer:3},
+
+{q:"5. Okhla Bird Sanctuary, Bakhira Sanctuary, Nawabganj Bird Sanctuary, Sandi Bird Sanctuary and Sur Sarovar Bird Sanctuary are included in the supplied list under which geographical heading?",options:["Bihar / Jharkhand","Delhi / Uttar Pradesh","Haryana / Punjab","Rajasthan / Gujarat"],answer:1},
+
+{q:"6. Salim Ali Bird Sanctuary is an important bird sanctuary associated with which Indian state according to the supplied list?",options:["Kerala","Maharashtra","Goa","Gujarat"],answer:2},
+
+{q:"7. Nal Sarovar Bird Sanctuary, which is identified as a flamingo hotspot in the supplied information, is located in which state?",options:["Gujarat","Rajasthan","Odisha","Madhya Pradesh"],answer:0},
+
+{q:"8. Naliya Grassland, also referred to as Lala Bustard Wildlife Sanctuary (WLS), is listed among the conservation areas of which state?",options:["Maharashtra","Rajasthan","Madhya Pradesh","Gujarat"],answer:3},
+
+{q:"9. Bhindawas Wildlife Sanctuary and Sultanpur Bird Sanctuary are two important bird conservation areas listed under the same Indian state. Identify the state.",options:["Himachal Pradesh","Haryana","Punjab","Uttarakhand"],answer:1},
+
+{q:"10. Pong Dam Lake (Bird Sanctuary), Bandli Wildlife Sanctuary and Kais Wildlife Sanctuary are included in the supplied list. Which state is associated with these three protected areas?",options:["Jammu and Kashmir","Uttarakhand","Himachal Pradesh","Sikkim"],answer:2},
+
+{q:"11. Udhuwa Lake Bird Sanctuary is an important bird conservation area mentioned in the supplied state-wise list. In which state is it located?",options:["Jharkhand","Bihar","Assam","Odisha"],answer:0},
+
+{q:"12. Which of the following combinations correctly matches a sanctuary with Karnataka, according to the supplied list of Indian bird sanctuaries?",options:["Kadalundi Bird Sanctuary","Kokkare Bellur Community Reserve","Chitrangudi Bird Sanctuary","Nal Sarovar Bird Sanctuary"],answer:1},
+
+{q:"13. Bankapura Peacock Conservation Reserve and Kokkare Bellur Community Reserve are listed among the protected areas of which Indian state?",options:["Kerala","Tamil Nadu","Karnataka","Maharashtra"],answer:2},
+
+{q:"14. Kumarakom Bird Sanctuary, Thattekad Bird Sanctuary and Mangalavanam Bird Sanctuary are important bird conservation areas. Which state is associated with all three?",options:["Karnataka","Goa","Tamil Nadu","Kerala"],answer:3},
+
+{q:"15. Sailana Kharmor Sanctuary and Sardarpur Kharmor Sanctuary are associated with the conservation of which bird species, as indicated in the supplied list?",options:["Lesser Florican","Great Indian Bustard","Flamingo","Peafowl"],answer:0},
+
+{q:"16. Ghatigaon Bustard Sanctuary and Karera Bustard Sanctuary are included in the supplied list of protected areas. Identify the state in which these sanctuaries are located.",options:["Gujarat","Madhya Pradesh","Rajasthan","Maharashtra"],answer:1},
+
+{q:"17. Karnala Bird Sanctuary, Jaikwadi Bird Sanctuary and Nandur Madhmeshwar Bird Sanctuary are among the bird conservation areas listed under which state?",options:["Gujarat","Goa","Maharashtra","Karnataka"],answer:2},
+
+{q:"18. Chilika Lake, which includes Nalabana Bird Sanctuary, is an important bird conservation destination mentioned in the supplied list. In which Indian state is it located?",options:["West Bengal","Andhra Pradesh","Tamil Nadu","Odisha"],answer:3},
+
+{q:"19. Bharatpur Bird Sanctuary, also known as Keoladeo National Park, and Tal Chhapar Sanctuary, associated with bustards, are listed under which Indian state?",options:["Rajasthan","Gujarat","Madhya Pradesh","Haryana"],answer:0},
+
+{q:"20. Vedanthangal Bird Sanctuary, Point Calimere Bird Sanctuary, Vaduvoor Bird Sanctuary and Koothankulam Bird Sanctuary are among the important bird conservation areas listed in the supplied material. Which state is associated with these sanctuaries?",options:["Kerala","Tamil Nadu","Andhra Pradesh","Karnataka"],answer:1},
+
+{q:"Which Karnataka sanctuary is particularly associated with peacock conservation in the provided list?",options:["Gudavi Bird Sanctuary","Attiveri Bird Sanctuary","Bankapura Peacock Conservation Reserve","Bonal Bird Sanctuary"],answer:2},
+{q:"Kokkare Bellur, included in the Karnataka section of the list, is classified as which type of conservation area?",options:["National Park","Bird Sanctuary","Tiger Reserve","Community Reserve"],answer:3},
+{q:"Which of the following Karnataka bird sanctuaries is associated with the Ranganathittu region?",options:["Ranganathittu Bird Sanctuary","Magadi Bird Sanctuary","Ghataprabha Bird Sanctuary","Puttenahalli Lake Bird Sanctuary"],answer:0},
+{q:"Pathiramanal Bird Sanctuary is associated with which district of Kerala in the provided list?",options:["Kottayam","Alappuzha","Kochi","Palakkad"],answer:1},
+{q:"Which Kerala bird sanctuary is associated with Kochi?",options:["Kumarakom Bird Sanctuary","Kadalundi Bird Sanctuary","Thattekad Bird Sanctuary","Chulanur Peafowl Sanctuary"],answer:2},
+{q:"Chulanur Wildlife Sanctuary in Kerala is particularly associated with the conservation of which bird?",options:["Great Indian Bustard","Lesser Florican","Black-necked Crane","Peafowl"],answer:3},
+{q:"Sailana Kharmor and Sardarpur Kharmor sanctuaries in Madhya Pradesh are associated with which bird species?",options:["Lesser Florican","Great Indian Bustard","Flamingo","Peafowl"],answer:0},
+{q:"Which of the following pairs consists of sanctuaries associated with bustard conservation in Madhya Pradesh?",options:["Sailana and Sardarpur","Ghatigaon and Karera","Karnala and Mayani","Kadalundi and Mangalavanam"],answer:1},
+{q:"Naigaon Mayur Wildlife Sanctuary, mentioned in the state-wise list, is located in which state?",options:["Gujarat","Karnataka","Maharashtra","Rajasthan"],answer:2},
+{q:"Which of the following is included in the Maharashtra section of the provided sanctuary list?",options:["Khijadiya Bird Sanctuary","Naliya Grassland Sanctuary","Tal Chhapar Sanctuary","Nandur Madhmeshwar Bird Sanctuary"],answer:3},
+{q:"Lengteng Wildlife Sanctuary is associated with which North-Eastern state?",options:["Mizoram","Assam","Manipur","Tripura"],answer:0},
+{q:"Nalabana Bird Sanctuary is located within which major waterbody of Odisha?",options:["Pulicat Lake","Chilika Lake","Kolleru Lake","Pong Dam Lake"],answer:1},
+{q:"Which Rajasthan sanctuary is specifically associated with bustards in the provided list?",options:["Keoladeo National Park","Bharatpur Bird Sanctuary","Tal Chhapar Sanctuary","Sultanpur Bird Sanctuary"],answer:2},
+{q:"Which Tamil Nadu bird sanctuary is associated with Sivaganga district?",options:["Vaduvoor Bird Sanctuary","Vedanthangal Bird Sanctuary","Koothankulam Bird Sanctuary","Chitrangudi Bird Sanctuary"],answer:3},
+{q:"Kanjirankulam Bird Sanctuary and Chitrangudi Bird Sanctuary are both listed under which state?",options:["Tamil Nadu","Kerala","Andhra Pradesh","Karnataka"],answer:0},
+{q:"Which bird sanctuary in Tamil Nadu is associated with Thiruvarur district?",options:["Ariyakulam Bird Sanctuary","Vaduvoor Bird Sanctuary","Point Calimere Bird Sanctuary","Vettangudi Bird Sanctuary"],answer:1},
+{q:"Which of the following is included among the bird sanctuaries of Tamil Nadu in the provided list?",options:["Kadalundi","Kumarakom","Point Calimere","Thattekad"],answer:2},
+{q:"Chintamoni Kar and Kulik Bird Sanctuaries are listed under which state?",options:["Odisha","Jharkhand","Assam","West Bengal"],answer:3},
+{q:"Which of the following pairs is correctly matched according to the provided sanctuary list?",options:["Karnala – Maharashtra","Karnala – Gujarat","Karnala – Karnataka","Karnala – Kerala"],answer:0},
+{q:"Consider the following sanctuary–state pairs: 1. Nagi Dam – Bihar 2. Kadalundi – Kerala 3. Lengteng – Mizoram 4. Udhuwa Lake – Jharkhand. Which of the above pairs are correctly matched?",options:["Only 1 and 2","1, 2, 3 and 4","Only 2 and 3","Only 1, 3 and 4"],answer:1},
+];
+
+
+
+// ===============================
+// VARIABLES
+// ===============================
+
+let userAnswers = new Array(questions.length).fill(null);
+
+let markedForReview = new Array(questions.length).fill(false);
+
+let submitted = false;
+
+// ===============================
+// LOAD QUIZ
+// ===============================
+
+function loadQuiz(){
+
+    const quizDiv = document.getElementById("quiz");
+
+    questions.forEach((question,index)=>{
+
+        const qDiv = document.createElement("div");
+
+        qDiv.classList.add("question");
+
+        qDiv.id = `question_${index}`;
+
+        qDiv.innerHTML = `
+        <h3>Q${index+1}. ${question.q}</h3>
+        `;
+
+        question.options.forEach((option,optIndex)=>{
+
+            const opt = document.createElement("div");
+
+            opt.classList.add("option");
+
+            opt.innerText = option;
+
+            opt.onclick = ()=>selectOption(index,optIndex,opt);
+
+            opt.id = `q${index}_opt${optIndex}`;
+
+            qDiv.appendChild(opt);
+
+        });
+
+        // MARK BUTTON
+
+        const markBtn = document.createElement("button");
+
+        markBtn.innerText = "Mark For Review";
+
+        markBtn.classList.add("mark-btn");
+
+        markBtn.onclick = ()=>toggleMark(index,markBtn);
+
+        qDiv.appendChild(markBtn);
+
+        // CLEAR BUTTON
+
+        const clearBtn = document.createElement("button");
+
+        clearBtn.innerText = "Clear";
+
+        clearBtn.classList.add("clear-btn");
+
+        clearBtn.onclick = ()=>clearAnswer(index);
+
+        qDiv.appendChild(clearBtn);
+
+        quizDiv.appendChild(qDiv);
+
+    });
+
+}
+
+// ===============================
+// SELECT OPTION
+// ===============================
+
+function selectOption(qIndex,optIndex,element){
+
+    if(submitted) return;
+
+    userAnswers[qIndex] = optIndex;
+
+    const options = document.querySelectorAll(`[id^="q${qIndex}_opt"]`);
+
+    options.forEach(opt=>{
+        opt.classList.remove("selected");
+    });
+
+    element.classList.add("selected");
+
+}
+
+// ===============================
+// MARK FOR REVIEW
+// ===============================
+
+function toggleMark(index,button){
+
+    markedForReview[index] = !markedForReview[index];
+
+    const questionBox = document.getElementById(`question_${index}`);
+
+    if(markedForReview[index]){
+
+        button.classList.add("marked");
+
+        button.innerText = "Marked For Review";
+
+        questionBox.classList.add("review-marked");
+
+    }else{
+
+        button.classList.remove("marked");
+
+        button.innerText = "Mark For Review";
+
+        questionBox.classList.remove("review-marked");
+
+    }
+
+}
+
+// ===============================
+// CLEAR ANSWER
+// ===============================
+
+function clearAnswer(index){
+
+    if(submitted) return;
+
+    userAnswers[index] = null;
+
+    const options = document.querySelectorAll(`[id^="q${index}_opt"]`);
+
+    options.forEach(opt=>{
+        opt.classList.remove("selected");
+    });
+
+}
+
+// ===============================
+// SUBMIT QUIZ
+// ===============================
+
+function submitQuiz(){
+
+    if(submitted) return;
+
+    submitted = true;
+
+    clearInterval(timer);
+
+    let score = 0;
+
+    let correctCount = 0;
+    let wrongCount = 0;
+    let unansweredCount = 0;
+
+    questions.forEach((question,index)=>{
+
+        const userAns = userAnswers[index];
+
+        if(userAns === null){
+
+            unansweredCount++;
+
+        }
+        else if(userAns === question.answer){
+
+            score += 1;
+            correctCount++;
+
+        }
+        else{
+
+            score -= 0.25;
+            wrongCount++;
+
+        }
+
+    });
+
+    let attempted = correctCount + wrongCount;
+
+    let accuracy = attempted > 0
+    ? ((correctCount/attempted)*100).toFixed(2)
+    : 0;
+
+    document.body.innerHTML = `
+
+    <div class="container">
+
+        <div class="result-box">
+
+            <h1>Quiz Submitted ✅</h1>
+
+            <h2>Total Score: ${score.toFixed(2)}</h2>
+
+            <h3>Correct Answers: ${correctCount}</h3>
+
+            <h3>Wrong Answers: ${wrongCount}</h3>
+
+            <h3>Unanswered Questions: ${unansweredCount}</h3>
+
+            <h3>Accuracy: ${accuracy}%</h3>
+
+            <button class="review-btn" onclick="reviewAnswers()">
+            Review Answers
+            </button>
+
+            <div id="reviewSection"></div>
+
+        </div>
+
+    </div>
+
+    `;
+
+}
+
+// ===============================
+// REVIEW ANSWERS
+// ===============================
+
+function reviewAnswers(){
+
+    const reviewSection = document.getElementById("reviewSection");
+
+    let html = `<h1 style="margin-top:40px;">Review Section</h1>`;
+
+    questions.forEach((question,index)=>{
+
+        const userAns = userAnswers[index];
+
+        let status = "";
+        let marks = "";
+
+        if(userAns === null){
+
+            status = `<span class="unanswered">Unanswered</span>`;
+            marks = `0 Marks`;
+
+        }
+        else if(userAns === question.answer){
+
+            status = `<span class="correct">Correct ✅</span>`;
+            marks = `+1 Mark`;
+
+        }
+        else{
+
+            status = `<span class="wrong">Wrong ❌</span>`;
+            marks = `-0.25 Mark`;
+
+        }
+
+        html += `
+
+        <div class="review-question">
+
+            <h3>Q${index+1}. ${question.q}</h3>
+
+            <p>${status}</p>
+
+            <p><b>Marks:</b> ${marks}</p>
+
+            <p>
+            <b>Your Answer:</b>
+            ${
+                userAns === null
+                ? "Not Attempted"
+                : question.options[userAns]
+            }
+            </p>
+
+            <div class="correct-answer">
+            <b>Correct Answer:</b>
+            ${question.options[question.answer]}
+            </div>
+
+        </div>
+
+        `;
+
+    });
+
+    reviewSection.innerHTML = html;
+
+}
+
+// ===============================
+// TIMER
+// ===============================
+
+let time = 1800;
+
+let timer;
+
+let isPaused = false;
+
+function startTimer(){
+
+    timer = setInterval(()=>{
+
+        if(!isPaused){
+
+            let minutes = Math.floor(time/60);
+
+            let seconds = time%60;
+
+            document.getElementById("timer").innerText =
+            `Time Left: ${minutes}:${seconds < 10 ? '0'+seconds : seconds}`;
+
+            time--;
+
+            if(time < 0){
+
+                clearInterval(timer);
+
+                alert("Time is up! Quiz auto-submitted.");
+
+                submitQuiz();
+
+            }
+
+        }
+
+    },1000);
+
+}
+
+// ===============================
+// PAUSE TIMER
+// ===============================
+
+function pauseTimer(){
+
+    if(submitted) return;
+
+    isPaused = true;
+
+    document.getElementById("pauseBtn").disabled = true;
+
+    document.getElementById("resumeBtn").disabled = false;
+
+    // Disable options
+    document.querySelectorAll(".option").forEach(opt=>{
+        opt.classList.add("disabled-option");
+    });
+
+    // Disable buttons
+    document.querySelectorAll(".mark-btn, .clear-btn").forEach(btn=>{
+        btn.disabled = true;
+        btn.classList.add("disabled-btn");
+    });
+
+}
+// ===============================
+// RESUME TIMER
+// ===============================
+
+function resumeTimer(){
+
+    if(submitted) return;
+
+    isPaused = false;
+
+    document.getElementById("pauseBtn").disabled = false;
+
+    document.getElementById("resumeBtn").disabled = true;
+
+    // Enable options
+    document.querySelectorAll(".option").forEach(opt=>{
+        opt.classList.remove("disabled-option");
+    });
+
+    // Enable buttons
+    document.querySelectorAll(".mark-btn, .clear-btn").forEach(btn=>{
+        btn.disabled = false;
+        btn.classList.remove("disabled-btn");
+    });
+
+}
+// ===============================
+
+loadQuiz();
+
+startTimer();
+
+</script>
+
+</body>
+</html>
